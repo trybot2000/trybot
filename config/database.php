@@ -54,6 +54,17 @@ return [
             'engine' => null,
         ],
 
+        'fantasyfootball' => [
+            'driver' => 'mysql',
+            'host' => env('DB_FANTASYFOOTBALL_HOST', '127.0.0.1'),
+            'port' => env('DB_FANTASYFOOTBALL_PORT', '3306'),
+            'database' => env('DB_FANTASYFOOTBALL_DATABASE', 'forge'),
+            'username' => env('DB_FANTASYFOOTBALL_USERNAME', 'forge'),
+            'password' => env('DB_FANTASYFOOTBALL_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
+
         'slack' => [
             'driver' => 'mysql',
             'host' => env('DB_SLACK_HOST', '127.0.0.1'),

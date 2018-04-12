@@ -38,14 +38,15 @@ return [
     'slack'     => [
         'legacy_token' => env('SLACK_LEGACY_TOKEN'),
         'users'        => [
-            'trybot' => env('SLACK_APP_TRYBOT_OAUTH_ACCESS_TOKEN'),
+            'trybot'     => env('SLACK_APP_TRYBOT_OAUTH_ACCESS_TOKEN'),
+            'fantasybot' => env('SLACK_APP_FANTASYBOT_OAUTH_ACCESS_TOKEN'),
         ],
     ],
 
     'google'    => [
         'knowledge_graph' => env('GOOGLE_KNOWLEDGE_GRAPH_TOKEN'),
         'time_zone_api'   => env('GOOGLE_TIME_ZONE_API_KEY'),
-        'geocoding'   => env('GOOGLE_GEOCODING_API_KEY'),
+        'geocoding'       => env('GOOGLE_GEOCODING_API_KEY'),
     ],
 
     'api_ai'    => [

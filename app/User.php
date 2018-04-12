@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Facades\App\Services\FantasyFootball;
 
 class User extends Authenticatable
 {
@@ -30,21 +31,31 @@ class User extends Authenticatable
 
     public function getId()
     {
-      return $this->id;
+        return $this->id;
     }
 
     public function getTwitchUsername($firstOnly = true)
     {
-      $usernames = $this->twitch()->pluck('twitch_username');
-      if ($firstOnly) {
-          return $usernames->first();
-      }
-      return $usernames;
+        $usernames = $this->twitch()->pluck('twitch_username');
+        if ($firstOnly) {
+            return $usernames->first();
+        }
+        return $usernames;
     }
 
     public function twitch()
     {
         return $this->hasMany('App\Http\Models\Twitch');
+    }
+
+    /**
+     * Route notifications for the Slack channel.
+     *
+     * @return string
+     */
+    public function routeNotificationForSlack()
+    {
+        return FantasyFootball::getSlackChannelWebhook();
     }
 
 }

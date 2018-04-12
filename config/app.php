@@ -229,6 +229,8 @@ return [
         'View'         => Illuminate\Support\Facades\View::class,
 
         'Curl'         => Ixudra\Curl\Facades\Curl::class,
+        'Helper'       => App\Helpers\Helper::class,
+        'FuzzyMatch'   => App\Helpers\FuzzyMatch::class,
 
     ],
 

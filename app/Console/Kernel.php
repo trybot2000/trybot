@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\UpdateSlackEmojiList::class,
         Commands\GetCurrentTwitchStreams::class,
+        Commands\FantasyFootballUpdateData::class,
     ];
 
     /**
@@ -27,6 +28,37 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('slack:emoji')->hourly();
         $schedule->command('twitch:streams')->everyMinute();
+
+        /**
+         *
+         *  Fantasy Football
+         *
+         */
+        // During football times
+        $schedule->command('fantasy:update')->everyMinute()
+            ->timezone('America/Chicago')
+            ->sundays()
+            ->between('8:00', '23:59')
+            ->withoutOverlapping();
+
+        $schedule->command('fantasy:update')->everyMinute()
+            ->timezone('America/Chicago')
+            ->mondays()
+            ->between('17:00', '23:59')
+            ->withoutOverlapping();
+
+        $schedule->command('fantasy:update')->everyMinute()
+            ->timezone('America/Chicago')
+            ->thursdays()
+            ->between('17:00', '23:59')
+            ->withoutOverlapping();
+
+        // Other times
+        $schedule->command('fantasy:update')->everyTenMinutes()
+            ->timezone('America/Chicago')
+            ->weekdays()
+            ->withoutOverlapping();
+
     }
 
     /**

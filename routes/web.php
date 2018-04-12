@@ -13,6 +13,25 @@ use Ixudra\Curl\Facades\Curl;
 |
  */
 
+Route::get('ff_test', function(){
+    $f = new \App\Services\FantasyFootball(true);
+    return $f->updateScheduleItems('111799');
+    // return $f->getMatchup('439427',1,3);
+
+    return $f->createNflMatchupImage(true,true);
+});
+
+Route::get('mention_test', function(){
+    $f = new \App\Http\Controllers\Slack\Slack;
+
+    $m = new \App\Http\Controllers\Slack\Helpers\Message;
+    $m->setText('Hi <@U0662EN06|hiderr>');
+
+    $f->postMessage($m,"G1LKKBAQN");
+
+});
+
+
 Route::get('/twitch/{username}', 'TwitchController@getUserIdFromUserName');
 Route::get('/twitch', 'TwitchController@getNewlyStartedStreams');
 Route::get('/twitch_test', 'TwitchController@getStreamers');
@@ -30,6 +49,11 @@ Route::get('/hfkwbzowbvfjhdhjfuhrb7364828', function () {
     }
     $r .= '</table>';
     return $r;
+});
+
+Route::namespace('Admin')->group(function () {
+    // Controllers Within The "App\Http\Controllers\Admin" Namespace
+    
 });
 
 Route::get('/test', function (\Illuminate\Http\Request $request) {
@@ -175,6 +199,12 @@ Route::group(['prefix' => 'admin'], function () {
 
 Route::group(['prefix' => 'api'], function () {
 
+    // A learning route for Mostowy
+    Route::group(['prefix' => 'mostowy'], function () {
+        Route::get('/', 'API\Mostowy@index');
+        Route::get('/help', 'API\Mostowy@help');
+    });
+
     // api.ai
     Route::group(['prefix' => 'ai'], function () {
         Route::get('/query', 'ApiAi@query');
@@ -191,6 +221,11 @@ Route::group(['prefix' => 'api'], function () {
             Route::any('/google', 'Slack\Slash@google');
             Route::any('/twitch', 'Slack\Slash@twitch');
             Route::any('/tz', 'Slack\Slash@tz');
+
+            Route::group(['prefix' => 'fantasy'], function () {
+              Route::any('/{command}', 'Slack\FantasyBot@command');
+              
+            });
         });
     });
 
@@ -296,3 +331,7 @@ Route::group(['prefix' => 'api'], function () {
         });
     });
 });
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index');

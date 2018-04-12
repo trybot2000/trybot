@@ -25,6 +25,7 @@ class Slack extends Controller
         'testing'   => 'G1LKKBAQN',
         'destiny'   => 'G4VRPMSA2',
         'overwatch' => 'C4VPYMRDJ',
+        'fortnite' => 'C79KLJYM9',
     ];
 
     public function event(\Illuminate\Http\Request $request)
@@ -57,8 +58,8 @@ class Slack extends Controller
     public function getEventTypes()
     {
         $events = collect([]);
-        $events->put('types', collect(Redis::zRange('Slack:EventLog:Types', 0, -1,"WITHSCORES")));
-            $events->put('subtypes',collect(Redis::zRange('Slack:EventLog:Subtypes', 0, -1,"WITHSCORES")));
+        $events->put('types', collect(Redis::zRange('Slack:EventLog:Types', 0, -1, "WITHSCORES")));
+        $events->put('subtypes', collect(Redis::zRange('Slack:EventLog:Subtypes', 0, -1, "WITHSCORES")));
         return response()->collectionToHtmlTable($events);
     }
 
@@ -75,7 +76,7 @@ class Slack extends Controller
     public function processMessage($request)
     {
         if (isset($request->event['text'])) {
-            $this->isSubreddit($request->event['text'], $request->event['channel']);
+            $this->isSubreddit($request->event['text'], $request->event['channel'], $request->event);
         }
     }
 
@@ -87,17 +88,21 @@ class Slack extends Controller
         return false;
     }
 
-    public function isSubreddit($text, $channel)
+    public function isSubreddit($text, $channel, $event = null)
     {
+        // Check to make sure we haven't checked this message already, to prevent duplicate responses
         $pattern = "/(?<!reddit\.com|reddittryhard\.com)(?:(?:^|\/| )r\/){1}([\w]+)/i";
         if (preg_match($pattern, $text, $matches)) {
             $subName = $matches[1];
+            \Log::info("Searching for subreddit $subName");
             // Search reddit for the sub, to make sure it's real and see if it's marked NSFW
-            $redditSearchResult = json_decode(file_get_contents("http://www.reddit.com/subreddits/search.json?q=" . $subName), true);
+            $redditSearchResult = json_decode(file_get_contents("http://www.reddit.com/subreddits/search.json?sort=relevance&q=" . $subName), true);
 
             $topResult = false;
+            $response  = null;
 
             foreach ($redditSearchResult['data']['children'] as $k => $v) {
+                \Log::info($v['data']['display_name']);
                 if ((trim(strtolower($v['data']['display_name'])) == trim(strtolower($subName))) && ($v['data']['subreddit_type'] === "public")) {
                     $topResult = $v['data'];
                     break;
@@ -113,11 +118,25 @@ class Slack extends Controller
                     $response = "Link for the lazy: reddit.com/r/" . $subName;
                 }
             }
+            if ($response) {
+                $message = new Message();
+                $message->messageVisibleToChannel();
+                $message->setText($response);
+                \Log::info("Posting to channel");
+                if (isset($event['ts'])) {
+                    if (Redis::get('Slack:SubredditReplyLog:' . $event['ts'])) {
+                        \Log::info("Message already processed, stopping check for subreddit");
+                    } else {
+                        
+                        $r = $this->postMessage($message, $channel);
 
-            $message = new Message();
-            $message->messageVisibleToChannel();
-            $message->setText($response);
-            $this->postMessage($message, $channel);
+                        // Log this response to redis, to prevent duplicate messages being triggered because Slack is sending double notifications to the event endpoint
+                        \Log::info($event['ts']);
+                        Redis::set('Slack:SubredditReplyLog:' . $event['ts'], microtime(true));
+                        // \Log::info($r);
+                    }
+                }
+            }
         }
     }
 
@@ -130,10 +149,10 @@ class Slack extends Controller
         return false;
     }
 
-    public function postMessage(Message $message, $channel)
+    public function postMessage(Message $message, $channel, $sendAs = 'trybot')
     {
         $baseUrl = "https://slack.com/api/chat.postMessage?";
-        $token   = config('services.slack.users.trybot');
+        $token   = config("services.slack.users.$sendAs");
         if (!$token) {
             \Log::error('No Slack legacy token found in configs');
         }
@@ -148,6 +167,7 @@ class Slack extends Controller
             ->returnResponseObject()
             ->asJson()
             ->post();
+        \Log::info(json_encode($postMessage));
         return $postMessage;
     }
 
@@ -164,6 +184,8 @@ class Slack extends Controller
         if ($channel) {
             $message->setChannel($channel);
         }
+        $message->setUpdateMessageTs($messageTs);
+
         $url = $baseUrl . http_build_query($message->build(true));
         \Log::info($url);
         $postMessage = Curl::to($url)
@@ -187,8 +209,8 @@ class Slack extends Controller
         if (!$token) {
             \Log::error('No Slack legacy token found in configs');
         }
-
         $url = "https://slack.com/api/emoji.list?token=" . $token;
+        \Log::info($url);
 
         $emojiListData = json_decode(file_get_contents($url), true);
         $emojiList     = $emojiListData['emoji'];

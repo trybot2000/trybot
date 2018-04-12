@@ -25,6 +25,11 @@ class Attachment
     public $ts;
     public $mrkdwn_in;
 
+    public function __construct()
+    {
+        $this->fallback = " ";
+    }
+
     public function build()
     {
         $vars    = get_class_vars(get_class($this));
@@ -137,6 +142,16 @@ class Attachment
     public function processMarkdownForText()
     {
         $this->mrkdwn_in[] = 'text';
+    }
+
+    public function processMarkdownForFields()
+    {
+        $this->mrkdwn_in[] = 'fields';
+    }
+
+    public function processMarkdownForPretext()
+    {
+        $this->mrkdwn_in[] = 'pretext';
     }
 
 }

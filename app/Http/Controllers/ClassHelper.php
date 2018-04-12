@@ -50,17 +50,17 @@ class ClassHelper
     {
         $return = "";
 
-// See if the string contains something
+        // See if the string contains something
         if (empty($json)) {
             die("The JSON string is empty!");
         }
 
-// If passed a string, turn it into an array
+        // If passed a string, turn it into an array
         if (is_array($json) === false) {
             $json = json_decode($json, true);
         }
 
-// If a path is included, open that file for handling. Otherwise, use a temp file (for echoing CSV string)
+        // If a path is included, open that file for handling. Otherwise, use a temp file (for echoing CSV string)
         if ($csvFilePath !== false) {
             $f = fopen($csvFilePath, 'w+');
             if ($f === false) {
@@ -90,7 +90,7 @@ class ClassHelper
 
         fclose($f);
 
-// Take the file and put it to a string/file for output (if no save path was included in function arguments)
+        // Take the file and put it to a string/file for output (if no save path was included in function arguments)
         if ($boolOutputFile === true) {
             if ($csvFilePath !== false) {
                 $file = $csvFilePath;
@@ -98,7 +98,7 @@ class ClassHelper
                 $file = $strTempFile;
             }
 
-// Output the file to the browser (for open/save)
+            // Output the file to the browser (for open/save)
             if (file_exists($file)) {
                 header('Content-Type: text/csv');
                 header('Content-Disposition: attachment; filename=' . basename($file));

@@ -23,6 +23,8 @@ class Message
     public $thread_ts;
     public $reply_broadcast;
 
+    public $ts;
+
     // Only for things like responses to slash commands
     public $response_type;
 
@@ -51,6 +53,11 @@ class Message
             }
         }
         return $payload;
+    }
+
+    public function setUpdateMessageTs($value)
+    {
+      $this->ts = $value;
     }
 
     public function setToken($value)

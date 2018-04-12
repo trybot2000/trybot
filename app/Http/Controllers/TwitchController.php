@@ -109,7 +109,7 @@ class TwitchController extends ClassHelper
                 }
 
                 \Log::info("Posing to channel");
-                $results[$stream->username] = $this->postMessage($message, $slack->casualChannelId, $stream->username);
+                $results[$stream->username][] = $this->postMessage($message, $slack->casualChannelId, $stream->username);
                 \Log::info("Message");
                 \Log::info($message->build());
 
@@ -117,13 +117,19 @@ class TwitchController extends ClassHelper
                 if (preg_match('/destiny/i', $stream->game)) {
                     // This is a destiny stream (probably)
                     \Log::info("Posing to Destiny channel");
-                    $results[$stream->username] = $this->postMessage($message, $slack->channels['destiny'], $stream->username);
+                    $results[$stream->username][] = $this->postMessage($message, $slack->channels['destiny'], $stream->username);
                 }
                 // If it's an Overwatch stream, also send to the Overwatch channel
                 if (preg_match('/overwatch/i', $stream->game)) {
                     // This is an Overwatch stream (probably)
                     \Log::info("Posing to Overwatch channel");
-                    $results[$stream->username] = $this->postMessage($message, $slack->channels['overwatch'], $stream->username);
+                    $results[$stream->username][] = $this->postMessage($message, $slack->channels['overwatch'], $stream->username);
+                }
+                // If it's a Fortnite stream, also send to the Fortnite channel
+                if (preg_match('/fortnite/i', $stream->game)) {
+                    // This is a Fortnite stream (probably)
+                    \Log::info("Posing to Fortnite channel");
+                    $results[$stream->username][] = $this->postMessage($message, $slack->channels['fortnite'], $stream->username);
                 }
             } else {
                 // Check that the current game matches the one we sent, and update if it's changed
@@ -148,7 +154,7 @@ class TwitchController extends ClassHelper
                         $message = $this->buildTwitchMessage([$stream], false, false, true);
 
                         // Update the existing message with the new one
-                        \Log::info((array)$slack->updateMessage($messageInfo[0], $message, $messageInfo[1]));;
+                        \Log::info((array) $this->updateMessage($messageInfo[0], $message, $messageInfo[1], $stream->username));
                     }
                 }
             }
@@ -174,16 +180,32 @@ class TwitchController extends ClassHelper
         return $response;
     }
 
+    public function updateMessage($messageTs, Message $message, $channelId, $username = null)
+    {
+        // Send to Slack
+        $slack    = new Slack;
+        $response = $slack->updateMessage($messageTs, $message, $channelId);
+
+        // If there's an attachment in the message, log it so we can update the game
+        // within a few minutes (if needed)
+        if ($username) {
+            $this->logTwitchPostForUpdate($response, $username);
+        }
+
+        return $response;
+    }
+
     public function logTwitchPostForUpdate($response, $username)
     {
-        $response = collect($response);
+        $response = collect($response->content);
+        \Log::info($response->toJson());
         if ($response->get('ok') == 'true' && $response->get('ts') !== null && $response->get('channel') !== null) {
             // See if redis knows about this message, based on its timestamp
-            $redisKey = 'Twitch:Streaming:RecentMessages' . $username;
+            $redisKey = 'Twitch:Streaming:RecentMessages:' . $username;
             $m        = Redis::get($redisKey);
             if (!$m) {
-                // Log the message in redis, expiring in 6 minutes
-                Redis::setEx($redisKey, 60 * 6, $response->get('ts') . ":" . $response->get('channel'));
+                // Log the message in redis, expiring in 10 minutes
+                Redis::setEx($redisKey, 60 * 10, $response->get('ts') . ":" . $response->get('channel'));
             }
         }
     }
@@ -227,19 +249,19 @@ class TwitchController extends ClassHelper
                 $strViewers = "viewer" . ($v->viewers == 1 ? "" : "s");
 
                 // Set the user/gamertag
-                $strResponse = "*" . $v->username . "*" . ((strtolower($v->username) != strtolower($v->gamertag)) && (strlen($v->gamertag) > 0) ? " (" . $v->gamertag . ") " : "");
+                $strResponse = "*" . $v->username . "*" . ((strtolower($v->username) != strtolower($v->gamertag)) && (strlen($v->gamertag) > 0) ? " (" . $v->gamertag . ")" : "");
 
                 // Set streaming description and title (if it's set)
                 if (empty($v->game)) {
                     $strResponse .= " is now streaming";
                 } else {
-                    $strResponse .= " is streaming " . "_" . $v->game . "_ ";
+                    $strResponse .= " is streaming " . "_" . $v->game . "_";
                 }
 
                 // Set number of viewers, if it should be included
                 if ($includeViewerCount) {
                     if ($v->viewers > 0) {
-                        $strResponse .= "to " . $v->viewers . " " . $strViewers;
+                        $strResponse .= " to " . $v->viewers . " " . $strViewers;
                     }
                 }
 
