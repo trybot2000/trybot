@@ -27,6 +27,7 @@ class Slack extends Controller
     'overwatch' => 'C4VPYMRDJ',
     'fortnite' => 'C79KLJYM9',
     'tweet-routing' => 'GA6RWV0H4',
+    'callofduty' => 'CA7EWE596',
   ];
 
   public function event(\Illuminate\Http\Request $request)
@@ -309,8 +310,10 @@ class Slack extends Controller
     // Depending on the account that's being retweeted, route to a specific group
     // Otherwise, send to #casual
     $patterns = [
-      'fortnite' => "/https?:\/\/(?:www)?twitter.com\/(FortniteGame|FortniteBR|ninja|drlupoontwitch)/i",
+      'fortnite' => "/https?:\/\/(?:www)?twitter.com\/(FortniteGame|FortniteBR|ninja|drlupoontwitch|TSM_Myth)/i",
       'overwatch' => "/https?:\/\/(?:www)?twitter.com\/(PlayOverwatch)/i",
+      'callofduty' => "/https?:\/\/(?:www)?twitter.com\/(CharlieINTEL|CallofDuty|codintel8880|Treyarch|SHGames|MichaelCondrey)/i",
+      'destiny' => "/https?:\/\/(?:www)?twitter.com\/(theDestinyBlog|BungieHelp|DestinyTheGame|Bungie)/i",
     ];
     if(preg_match($patterns['fortnite'], $tweetURL)){
       // Fortnite
@@ -319,6 +322,14 @@ class Slack extends Controller
     elseif(preg_match($patterns['overwatch'], $tweetURL)){
       // Overwatch
       $channel = $this->channels['overwatch'];
+    }
+    elseif(preg_match($patterns['callofduty'], $tweetURL)){
+      // Overwatch
+      $channel = $this->channels['callofduty'];
+    }
+    elseif(preg_match($patterns['destiny'], $tweetURL)){
+      // Overwatch
+      $channel = $this->channels['destiny'];
     }
     else{ 
       // Everything else
