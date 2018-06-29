@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         Commands\UpdateSlackEmojiList::class,
         Commands\GetCurrentTwitchStreams::class,
         Commands\FantasyFootballUpdateData::class,
+        Commands\UpdateFortniteTrackerCommand::class,
     ];
 
     /**
@@ -29,12 +30,16 @@ class Kernel extends ConsoleKernel
         $schedule->command('slack:emoji')->hourly();
         $schedule->command('twitch:streams')->everyMinute();
 
+        $schedule->command('fortnite:update')->cron('*/4  *  *  *  *');
+
         /**
          *
          *  Fantasy Football
          *
          */
         // During football times
+
+/*
         $schedule->command('fantasy:update')->everyMinute()
             ->timezone('America/Chicago')
             ->sundays()
@@ -58,6 +63,8 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Chicago')
             ->weekdays()
             ->withoutOverlapping();
+    */
+
 
     }
 

@@ -221,6 +221,7 @@ Route::group(['prefix' => 'api'], function () {
             Route::any('/google', 'Slack\Slash@google');
             Route::any('/twitch', 'Slack\Slash@twitch');
             Route::any('/tz', 'Slack\Slash@tz');
+            Route::any('/jizzme', 'Slack\Slash@jizzMe');
 
             Route::group(['prefix' => 'fantasy'], function () {
               Route::any('/{command}', 'Slack\FantasyBot@command');
