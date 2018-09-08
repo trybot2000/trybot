@@ -9,6 +9,11 @@
 
                 <div class="panel-body">
                     You are logged in!
+@guest
+guest
+@else
+auth
+@endguest
                 </div>
             </div>
         </div>

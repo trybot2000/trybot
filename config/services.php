@@ -14,43 +14,43 @@ return [
     |
      */
 
-    'mailgun'   => [
-        'domain' => env('MAILGUN_DOMAIN'),
-        'secret' => env('MAILGUN_SECRET'),
+  'mailgun'   => [
+    'domain' => env('MAILGUN_DOMAIN'),
+      'secret' => env('MAILGUN_SECRET'),
     ],
 
     'ses'       => [
-        'key'    => env('SES_KEY'),
+      'key'    => env('SES_KEY'),
         'secret' => env('SES_SECRET'),
         'region' => 'us-east-1',
-    ],
+      ],
 
-    'sparkpost' => [
+      'sparkpost' => [
         'secret' => env('SPARKPOST_SECRET'),
-    ],
+        ],
 
-    'stripe'    => [
-        'model'  => App\User::class,
-        'key'    => env('STRIPE_KEY'),
-        'secret' => env('STRIPE_SECRET'),
-    ],
+        'stripe'    => [
+          'model'  => App\User::class,
+          'key'    => env('STRIPE_KEY'),
+          'secret' => env('STRIPE_SECRET'),
+        ],
 
-    'slack'     => [
-        'legacy_token' => env('SLACK_LEGACY_TOKEN'),
-        'users'        => [
+        'slack'     => [
+          'client_id' => env('SLACK_APP_TRYBOT_CLIENT_ID'),
+          'client_secret' => env('SLACK_APP_TRYBOT_CLIENT_SECRET'),
+          'redirect' => env('SLACK_APP_TRYBOT_REDIRECT_URI'),
+          'legacy_token' => env('SLACK_LEGACY_TOKEN'),
+          'users'        => [
             'trybot'     => env('SLACK_APP_TRYBOT_OAUTH_ACCESS_TOKEN'),
             'fantasybot' => env('SLACK_APP_FANTASYBOT_OAUTH_ACCESS_TOKEN'),
+          ],
         ],
-    ],
-
-    'google'    => [
-        'knowledge_graph' => env('GOOGLE_KNOWLEDGE_GRAPH_TOKEN'),
-        'time_zone_api'   => env('GOOGLE_TIME_ZONE_API_KEY'),
-        'geocoding'       => env('GOOGLE_GEOCODING_API_KEY'),
-    ],
-
-    'api_ai'    => [
-        'trybot' => env('API_AI_CLIENT_ACCESS_TOKEN'),
-    ],
-
-];
+        'google'    => [
+          'knowledge_graph' => env('GOOGLE_KNOWLEDGE_GRAPH_TOKEN'),
+          'time_zone_api'   => env('GOOGLE_TIME_ZONE_API_KEY'),
+          'geocoding'       => env('GOOGLE_GEOCODING_API_KEY'),
+        ],
+        'api_ai'    => [
+          'trybot' => env('API_AI_CLIENT_ACCESS_TOKEN'),
+        ],
+     ];

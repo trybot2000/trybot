@@ -178,6 +178,8 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         Ixudra\Curl\CurlServiceProvider::class,
+        \SocialiteProviders\Manager\ServiceProvider::class,
+        MrEssex\LaravelAuthProfile\AuthProfileServiceProvider::class,
 
     ],
 
@@ -231,6 +233,7 @@ return [
         'Curl'         => Ixudra\Curl\Facades\Curl::class,
         'Helper'       => App\Helpers\Helper::class,
         'FuzzyMatch'   => App\Helpers\FuzzyMatch::class,
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
 
     ],
 

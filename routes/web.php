@@ -13,6 +13,8 @@ use Ixudra\Curl\Facades\Curl;
 |
  */
 
+Route::get('/', 'HomeController@index');
+
 Route::get('ff_test', function(){
     $f = new \App\Services\FantasyFootball(true);
     return $f->updateScheduleItems('111799');
@@ -90,9 +92,9 @@ Route::post('/whom', function (\Illuminate\Http\Request $request) {
 });
 
 Route::group([], function () {
-    Route::get('/', function () {
-        return view('april_fools_2017', ['dev' => false]);
-    });
+//    Route::get('/', function () {
+//        return view('april_fools_2017', ['dev' => false]);
+//    });
 
     Route::get('/game', function () {
 
@@ -335,4 +337,9 @@ Route::group(['prefix' => 'api'], function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index');
+Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('auth/slack', 'Auth\LoginController@redirectToProvider');
+Route::get('auth/slack/callback', 'Auth\LoginController@handleProviderCallback');
+
+

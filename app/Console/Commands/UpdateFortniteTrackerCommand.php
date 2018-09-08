@@ -48,6 +48,8 @@ class UpdateFortniteTrackerCommand extends Command
       'supertravtastic1' => ['psn','pc'], 
       'roboknees16' => ['psn','pc'], 
       'originalhavoc95' => ['psn','pc'], 
+      'mostowy' => ['psn','pc'], 
+      'probe_07' => ['psn','pc'], 
     ];
 
     foreach($users as $user => $platforms){

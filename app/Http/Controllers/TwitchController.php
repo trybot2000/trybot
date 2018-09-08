@@ -131,6 +131,12 @@ class TwitchController extends ClassHelper
                     \Log::info("Posing to Fortnite channel");
                     $results[$stream->username][] = $this->postMessage($message, $slack->channels['fortnite'], $stream->username);
                 }
+                // If it's a CoD stream, also send to the Call of Duty channel
+                if (preg_match('/call of duty/i', $stream->game)) {
+                    // This is a CoD stream (probably)
+                    \Log::info("Posing to CoD channel");
+                    $results[$stream->username][] = $this->postMessage($message, $slack->channels['callofduty'], $stream->username);
+                }
             } else {
                 // Check that the current game matches the one we sent, and update if it's changed
                 // TODO
