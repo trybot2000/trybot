@@ -39,7 +39,6 @@ class Kernel extends ConsoleKernel
          */
         // During football times
 
-/*
         $schedule->command('fantasy:update')->everyMinute()
             ->timezone('America/Chicago')
             ->sundays()
@@ -63,8 +62,6 @@ class Kernel extends ConsoleKernel
             ->timezone('America/Chicago')
             ->weekdays()
             ->withoutOverlapping();
-    */
-
 
     }
 
