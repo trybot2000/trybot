@@ -82,6 +82,7 @@ class FantasyFootball
         }
 
         $r = Curl::to($url)
+            ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
             ->asJson(true)
             ->get();
@@ -187,6 +188,7 @@ class FantasyFootball
         $url = "http://api-app.espn.com/v1/sports/football/nfl/events?advance=true&apikey=9342q2d6jhdwvmnqueveu58q&profile=sportscenter_v1&platform=ios&device=handset&lang=en";
 
         $r = Curl::to($url)
+            ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
             ->asJson(true)
             ->get();
@@ -296,10 +298,10 @@ class FantasyFootball
             'record' => $team['records'][0]['summary'],
             'wins' => explode("-", $team['records'][0]['summary'])[0],
             'losses' => explode("-", $team['records'][0]['summary'])[1],
-            'rankCurrent' => !isset($team['ranks']) ? null : $team['ranks'][0]['rank']['current'],
-            'rankPrevious' => !isset($team['ranks']) ? null : $team['ranks'][0]['rank']['previous'],
-            'rankType' => !isset($team['ranks']) ? null : $team['ranks'][0]['type'],
-            'rankHeadline' => !isset($team['ranks']) ? null : $team['ranks'][0]['headline'],
+            'rankCurrent' => ! isset($team['ranks']) ? null : $team['ranks'][0]['rank']['current'],
+            'rankPrevious' => ! isset($team['ranks']) ? null : $team['ranks'][0]['rank']['previous'],
+            'rankType' => ! isset($team['ranks']) ? null : $team['ranks'][0]['type'],
+            'rankHeadline' => ! isset($team['ranks']) ? null : $team['ranks'][0]['headline'],
         ]);
 
         return $t->save();
@@ -386,6 +388,7 @@ class FantasyFootball
         // Get the full league info
         $url = $this->espnBase . "/ffl/api/v2/leagueInformation?leagueId={$leagueId}&includeTeamRecords=true&fromTeamId=1&rand=" . random_int(11111, 999999);
         $r = Curl::to($url)
+            ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
         // ->asJson()
             ->get();
@@ -432,7 +435,7 @@ class FantasyFootball
     public function updateScheduleItems($leagueId, $teamId = null)
     {
         // Decide if a team ID should be used, defaulting to the full list of team IDs from the database
-        if (!$teamId) {
+        if (! $teamId) {
             $teamId = $this->getLeagueTeamNumbers($leagueId);
         }
 
@@ -440,6 +443,7 @@ class FantasyFootball
         $url = $this->espnBase . "/ffl/api/v2/newTeams?leagueId={$leagueId}&teamIds={$teamId}&rand=" . random_int(11111, 999999);
 
         $r = Curl::to($url)
+            ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
         // ->asJson()
             ->get();
@@ -485,7 +489,7 @@ class FantasyFootball
                 $item->homeTeamId = $matchup->homeTeamId;
                 $item->homeTeamScores = json_encode($matchup->homeTeamScores);
                 $item->homeTeamAdjustment = $matchup->homeTeamAdjustment;
-                if (!$matchup->isBye) {
+                if (! $matchup->isBye) {
                     $item->awayTeamId = $awayTeamId;
                     $item->awayTeamScores = json_encode($matchup->awayTeamScores);
                     $item->awayTeamAdjustment = $matchup->awayTeamAdjustment;
@@ -503,7 +507,7 @@ class FantasyFootball
     public function updateTeamInfo($leagueId, $teamId = null)
     {
         // Decide if a team ID should be used, defaulting to the full list of team IDs from the database
-        if (!$teamId) {
+        if (! $teamId) {
             $teamId = $this->getLeagueTeamNumbers($leagueId);
         }
 
@@ -511,6 +515,7 @@ class FantasyFootball
         $url = $this->espnBase . "/ffl/api/v2/newTeams?leagueId={$leagueId}&teamIds={$teamId}&rand=" . random_int(11111, 999999);
 
         $r = Curl::to($url)
+            ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
         // ->asJson()
             ->get();
@@ -588,7 +593,7 @@ class FantasyFootball
     public function updateTeamRosterInfo($leagueId, $teamId = null, $scoringPeriodId = null)
     {
 
-        $teamId = !is_null($teamId) ?: $this->getLeagueTeamNumbers($leagueId);
+        $teamId = ! is_null($teamId) ?: $this->getLeagueTeamNumbers($leagueId);
 
         $strScoringPeriodId = "";
         if ($scoringPeriodId !== null) {
@@ -599,6 +604,7 @@ class FantasyFootball
         $url = "http://games.espn.go.com/ffl/api/v2/rosterInfo?leagueId={$leagueId}&includeProjectionText=true{$strScoringPeriodId}&teamIds={$teamId}&usePreviousSeasonRealStats=true&useCurrentSeasonRealStats=true&useCurrentPeriodRealStats=true&useCurrentPeriodProjectedStats=true&usePreviousPeriodRealStats=false&includeRankings=true&includeLatestNews=true&fromTeamId=1&rand=" . random_int(11111111, 999999999);
 
         $r = Curl::to($url)
+            ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
         // ->asJson()
             ->get();
@@ -739,6 +745,7 @@ class FantasyFootball
         $url = $this->espnBase . "/ffl/api/v2/recentActivity?leagueId={$leagueId}&count={$limit}&fromTeamId=1&rand=" . random_int(11111111, 999999999);
 
         $r = Curl::to($url)
+            ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
             ->asJson()
             ->get();
@@ -754,6 +761,7 @@ class FantasyFootball
         \Log::info($url);
 
         $r = Curl::to($url)
+            ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
         // ->asJson(true)
             ->get();
@@ -776,7 +784,7 @@ class FantasyFootball
                 $tmpMatchup[$homeAway . 'GamesInProgress'] = $team['gamesInProgress'];
                 $tmpTopScorer = isset($team['topScorer']) ? $team['topScorer'] : null;
                 $tmpMatchup[$homeAway . 'TopScorerId'] = $tmpTopScorer['player']['playerId'];
-                $tmpMatchup[$homeAway . 'TopScorerScore'] = array_get($tmpTopScorer,'currentPeriodRealStats.appliedStatTotal');
+                $tmpMatchup[$homeAway . 'TopScorerScore'] = array_get($tmpTopScorer, 'currentPeriodRealStats.appliedStatTotal');
                 $tmpMatchup[$homeAway . 'GamesYetToPlay'] = $team['gamesYetToPlay'];
                 $tmpMatchup[$homeAway . 'MinutesRemaining'] = $team['minutesRemaining'];
                 $tmpMatchup[$homeAway . 'IsFinal'] = $team['isFinal'];
@@ -880,13 +888,14 @@ class FantasyFootball
     {
         $url = "http://games.espn.go.com/ffl/api/v2/playerInfo?leagueId={$leagueId}&playerId={$playerId}&useCurrentSeasonRealStats=true&useCurrentSeasonProjectedStats=true&usePreviousSeasonRealStats=false&useCurrentPeriodRealStats=true&useCurrentPeriodProjectedStats=true&usePreviousPeriodRealStats=true&useGameLog=true&includeProjectionText=true&include=news|projections|playerInfos&rand=9022398354299";
         $r = Curl::to($url)
+            ->allowRedirect(true)
             ->withHeader('Cookie: ' . $this->cookie)
             ->asJson(true)
             ->get();
 
         $arrPlayerInfo = $r['playerInfo']['players'][0];
         // return $arrPlayerInfo;
-        if (!empty($arrPlayerInfo)) {
+        if (! empty($arrPlayerInfo)) {
             $this->insertPlayerInfo($arrPlayerInfo);
         }
         return $arrPlayerInfo;
@@ -968,7 +977,7 @@ class FantasyFootball
             ->first();
         // return $players->toArray();
 
-        if (!$players) {
+        if (! $players) {
             return "Sorry, I'm not sure which player you're asking about.";
         }
 
@@ -1012,7 +1021,7 @@ class FantasyFootball
 
             if ($playerStats['team'] == null) {
                 $strResponse .= ucfirst($pronouns[$pronoun]["he"]) . " " . $pronouns[$pronoun]["is"] . " not signed to an NFL team.";
-            } else if (!empty($arrFullStats)) {
+            } else if (! empty($arrFullStats)) {
 
                 // They have some live stats, so let's see if they're still in a game
                 $playerInfo = $this->getPlayerInfo($playerStats['playerId'], $leagueId);
@@ -1184,6 +1193,7 @@ class FantasyFootball
             $url = "http://games.espn.go.com/ffl/api/v2/playerInfo?leagueId={$leagueId}&fromTeamId=1&availabilityFilter=-1&slotCategoryFilter=-1&s1category=playerinfo&s1column=percentOwned&s1direction=descending&s2category=playerinfo&s2column=percentOwned&s2direction=descending&useCurrentSeasonRealStats=true&usePreviousSeasonRealStats=true&offset={$intOffset}&limit={$limit}&useCurrentPeriodRealStats=true&useCurrentPeriodProjectedStats=true&usePreviousPeriodRealStats=false&includeProjectionText=true&includeRankings=true&includeLatestNews=true&top3=false&rand=902239874713";
 
             $r = Curl::to($url)
+                ->allowRedirect(true)
                 ->withHeader('Cookie: ' . $this->cookie)
                 ->asJson(true)
                 ->get();
@@ -1484,7 +1494,7 @@ class FantasyFootball
                 $getting[] = $v->player->fullName . " (" . $positions[$v->player->position] . ", " . $v->player->team . ")";
             }
 
-            $strMessage = "*" . $proposingTeamName . "* wants to trade " . Helper::implodeNice($giving) . " to *" . $receivingTeamName . "* in exchange for " . Helper::implodeNice($getting) . ". " . (!empty($dropping[$proposingTeamId]) ? $proposingTeamName . " is also dropping " . Helper::implodeNice($dropping[$proposingTeamId]) : "") . (!empty($dropping[$receivingTeamId]) ? (!empty($dropping[$proposingTeamId]) ? ", and " : "") . $receivingTeamName . " is also dropping " . Helper::implodeNice($dropping[$receivingTeamId]) : "") . ((!empty($dropping[$proposingTeamId]) || !empty($dropping[$receivingTeamId])) ? ". " : "") . "League members can review this trade (and approve or veto) here: http://games.espn.go.com/ffl/pendingtrades?leagueId=" . $transaction['leagueId'];
+            $strMessage = "*" . $proposingTeamName . "* wants to trade " . Helper::implodeNice($giving) . " to *" . $receivingTeamName . "* in exchange for " . Helper::implodeNice($getting) . ". " . (! empty($dropping[$proposingTeamId]) ? $proposingTeamName . " is also dropping " . Helper::implodeNice($dropping[$proposingTeamId]) : "") . (! empty($dropping[$receivingTeamId]) ? (! empty($dropping[$proposingTeamId]) ? ", and " : "") . $receivingTeamName . " is also dropping " . Helper::implodeNice($dropping[$receivingTeamId]) : "") . ((! empty($dropping[$proposingTeamId]) || ! empty($dropping[$receivingTeamId])) ? ". " : "") . "League members can review this trade (and approve or veto) here: http://games.espn.go.com/ffl/pendingtrades?leagueId=" . $transaction['leagueId'];
             echo $strMessage;
             echo "<br />";
             echo "<br />";
@@ -1697,7 +1707,7 @@ class FantasyFootball
         $hash = md5($leagueId . "-" . $matchupInfo['matchupPeriodId'] . "-" . $matchupInfo['homeTeamId'] . "-" . $matchupInfo['awayTeamId']);
         $n = Notification::where('hash', '=', $hash)->where('isProcessed', '=', '1')->count();
 
-        if ($n > 0 && !$this->debug) {
+        if ($n > 0 && ! $this->debug) {
             \Log::info("Skipping...");
             return false;
         }
@@ -2604,7 +2614,7 @@ class FantasyFootball
     {
         $root = public_path() . '/img/ff/';
 
-        if (!is_array($images)) {
+        if (! is_array($images)) {
             return false;
         }
 
