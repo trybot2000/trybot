@@ -39,16 +39,22 @@ class CreateAndSendLeagueMatchupImage implements ShouldQueue
      */
     public function handle()
     {
+      \Log::info("starting job CreateAndSendLeagueMatchupImage");
+
         // Update the league scoreboard
         // FantasyFootball::updateLeagueScoreboard($this->leagueId);
 
         // Get the matchup period
+        \Log::info("Getting matchupPeriod");
         $matchupPeriod = FantasyFootball::getMatchupPeriodId($this->leagueId, $this->getPrior);
 
+        \Log::info("getting Matchups");
         $matchups = FantasyFootball::createAllMatchupImages($this->leagueId, false, $matchupPeriod);
 
+        \Log::info("Getting updatedAt");
         $updatedAt = Redis::get("FantasyFootball:log:updateLeagueScoreboard");
 
+        \Log::info("Making new message");
         $message = new Message();
         \Log::info($matchups);
         if ($matchups) {
@@ -74,5 +80,6 @@ class CreateAndSendLeagueMatchupImage implements ShouldQueue
 
         }
 
+        \Log::info("End of job");
     }
 }

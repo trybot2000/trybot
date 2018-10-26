@@ -46,6 +46,8 @@ class Slack extends Controller
             $this->processMessage($request);
             break;
 
+          case 'url_verification':
+            return $request->event['challenge'];
             // TODO: What other types of events might this receive??
             // Check the different subtypes (if that key exists)
           default:
@@ -62,6 +64,11 @@ class Slack extends Controller
         }
       }
     }
+    if(isset($request->challenge)){
+      return $request->challenge;
+    }
+  
+    return response(null, 200);
   }
 
   public function getEventTypes()
