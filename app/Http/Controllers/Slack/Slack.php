@@ -115,6 +115,7 @@ class Slack extends Controller
             
             $message = new Message();
             $message->messageVisibleToChannel();
+            $message->unfurlEverything();
             $message->setText("https://www.epicgames.com/fn/$code");
             \Log::info('Posting to channel');
             if (isset($event['ts'])) {
