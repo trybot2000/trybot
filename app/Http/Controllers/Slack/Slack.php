@@ -93,6 +93,7 @@ class Slack extends Controller
     {
         if (isset($request->event['text'])) {
             $this->isSubreddit($request->event['text'], $request->event['channel'], $request->event);
+            $this->isFortniteCreativeCode($request->event['text'], $request->event['channel'], $request->event);
         }
     }
 
@@ -102,6 +103,32 @@ class Slack extends Controller
             return true;
         }
         return false;
+    }
+
+    public function isFortniteCreativeCode($text, $channel, $event = null)
+    {
+        // Check to make sure we haven't checked this message already, to prevent duplicate responses
+        $pattern = '/(?<!epicgames\.com\/fn\/)([\d]{4}-[\d]{4}-[\d]{4})/i';
+        if (preg_match($pattern, $text, $matches)) {
+            $code = $matches[1];
+            \Log::info("Creative code found: $code");
+            
+            $message = new Message();
+            $message->messageVisibleToChannel();
+            $message->setText("https://www.epicgames.com/fn/$code");
+            \Log::info('Posting to channel');
+            if (isset($event['ts'])) {
+                if (Redis::get('Slack:FNCreativeCodeReplyLog:' . $event['ts'])) {
+                    \Log::info('Message already processed, stopping check for creative code');
+                } else {
+                    $this->postMessage($message, $channel);
+
+                    // Log this response to redis, to prevent duplicate messages being triggered because Slack is sending double notifications to the event endpoint
+                    \Log::info($event['ts']);
+                    Redis::set('Slack:FNCreativeCodeReplyLog:' . $event['ts'], microtime(true));
+                }
+            }
+        }
     }
 
     public function isSubreddit($text, $channel, $event = null)
