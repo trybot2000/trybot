@@ -37,7 +37,7 @@ class Message
     {
         $vars    = get_class_vars(get_class($this));
         $payload = [];
-        $json    = "";
+        $json    = '';
 
         foreach ($vars as $k => $v) {
             if (is_null($this->{$k})) {
@@ -48,7 +48,7 @@ class Message
         }
         if ($prepareForQuery === true) {
             // Format the attachments value as json_encoded text, rather than an array, which prepares it for http_build_query
-            if (!empty($payload['attachments'])) {
+            if (! empty($payload['attachments'])) {
                 $payload['attachments'] = json_encode($payload['attachments']);
             }
         }
@@ -57,7 +57,7 @@ class Message
 
     public function setUpdateMessageTs($value)
     {
-      $this->ts = $value;
+        $this->ts = $value;
     }
 
     public function setToken($value)
@@ -149,4 +149,9 @@ class Message
         }
     }
 
+    public function unfurlEverything()
+    {
+        $this->unfurl_links = true;
+        $this->unfurl_media = true;
+    }
 }
