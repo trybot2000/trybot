@@ -28,6 +28,7 @@ class Slack extends Controller
     'fortnite' => 'C79KLJYM9',
     'tweet-routing' => 'GA6RWV0H4',
     'callofduty' => 'CA7EWE596',
+    'apex' => 'CG34EEYA3',
   ];
 
   public function event(\Illuminate\Http\Request $request)
@@ -321,6 +322,7 @@ class Slack extends Controller
       'overwatch' => "/https?:\/\/(?:www)?twitter.com\/(PlayOverwatch)/i",
       'callofduty' => "/https?:\/\/(?:www)?twitter.com\/(CharlieINTEL|CallofDuty|codintel8880|Treyarch|SHGames|MichaelCondrey)/i",
       'destiny' => "/https?:\/\/(?:www)?twitter.com\/(theDestinyBlog|BungieHelp|DestinyTheGame|Bungie)/i",
+      'apex' => "/https?:\/\/(?:www)?twitter.com\/(Respawn|PlayApex)/i",
     ];
     if(preg_match($patterns['fortnite'], $tweetURL)){
       // Fortnite
@@ -337,6 +339,10 @@ class Slack extends Controller
     elseif(preg_match($patterns['destiny'], $tweetURL)){
       // Overwatch
       $channel = $this->channels['destiny'];
+    }
+    elseif(preg_match($patterns['apex'], $tweetURL)){
+      // Apex Legends
+      $channel = $this->channels['apex'];
     }
     else{ 
       // Everything else
