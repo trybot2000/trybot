@@ -125,6 +125,12 @@ class TwitchController extends ClassHelper
                     \Log::info("Posing to Overwatch channel");
                     $results[$stream->username][] = $this->postMessage($message, $slack->channels['overwatch'], $stream->username);
                 }
+                // If it's an Apex Legends stream, also send to the Apex channel
+                if (preg_match('/apex legends/i', $stream->game)) {
+                    // This is an Apex Legends stream (probably)
+                    \Log::info("Posing to Apex channel");
+                    $results[$stream->username][] = $this->postMessage($message, $slack->channels['apex'], $stream->username);
+                }
                 // If it's a Fortnite stream, also send to the Fortnite channel
                 if (preg_match('/fortnite/i', $stream->game)) {
                     // This is a Fortnite stream (probably)
