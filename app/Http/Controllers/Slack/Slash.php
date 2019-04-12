@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Slack;
 
+use \App\Exceptions\CurlTimeoutException;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\GoogleGeocoding;
 use App\Http\Controllers\GoogleSearch;
@@ -13,8 +14,8 @@ use App\Http\Controllers\TwitchController;
 use App\Http\Models\Twitch;
 use App\Jobs\ReplyToTwitchCommand;
 use App\User;
-use \App\Exceptions\CurlTimeoutException;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Str;
 
 class Slash extends Controller
 {
@@ -323,8 +324,19 @@ class Slash extends Controller
 
     public function codes()
     {
+        $numWords = [1 => 'one', 2 => 'two', 3 => 'three', 4 => 'four', 5 => 'five', 6 => 'six', 7 => 'seven', 8 => 'eight', 9 => 'nine', 10 => 'ten'];
+
         $payload = \Request::all();
         \Log::info($payload);
+        
+        if (! isset($payload['text']) || is_null($payload['text'])) {
+            $number = 5;
+        } else {
+            $number = intval($payload['text']);
+            if ($number > 10 || $number < 1) {
+                $number = 5;
+            }
+        }
 
         $message = new Message();
         $message->messageVisibleToChannel();
@@ -332,7 +344,7 @@ class Slash extends Controller
         // Get the 4 most recent unique codes
         $lastTenCodes = Redis::lrange('Slack:FNCreativeCodesList', 0, 9);
         $codes = collect($lastTenCodes)->unique()
-            ->take(5)
+            ->take($number)
             ->map(function ($code) {
                 $titleRaw = html_entity_decode(Redis::get('Slack:FNCreativeCodesTitles:'. $code));
                 $descriptionRaw = html_entity_decode(Redis::get('Slack:FNCreativeCodesDescriptions:'. $code));
@@ -342,7 +354,7 @@ class Slash extends Controller
                 return "`${code}` " . ($title ? "*${title}*" : '') . ($description ? " - ${description}" : '');
             });
 
-        $message->setText("Here's the last five codes mentioned in this channel:\n\n" . $codes->implode("\n"));
+            $message->setText("Here's the last {$numWords[$number]} ". Str::plural('code', $number) . " mentioned in this channel:\n\n" . $codes->implode("\n"));
 
         return response()->json($message->build());
     }
