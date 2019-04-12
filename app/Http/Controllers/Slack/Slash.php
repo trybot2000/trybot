@@ -332,14 +332,14 @@ class Slash extends Controller
         // Get the 4 most recent unique codes
         $lastTenCodes = Redis::lrange('Slack:FNCreativeCodesList', 0, 9);
         $codes = collect($lastTenCodes)->unique()
-            ->take(4)
+            ->take(5)
             ->map(function ($code) {
                 $title = Redis::get('Slack:FNCreativeCodesTitles:'. $code);
                 $description = Redis::get('Slack:FNCreativeCodesDescriptions:'. $code);
                 return "`${code}` " . ($title ? "*${title}*" : '') . ($description ? " - ${description}" : '');
             });
 
-        $message->setText("Here's the last four codes mentioned in this channel:\n\n" . $codes->implode("\n"));
+        $message->setText("Here's the last five codes mentioned in this channel:\n\n" . $codes->implode("\n"));
 
         return response()->json($message->build());
     }
