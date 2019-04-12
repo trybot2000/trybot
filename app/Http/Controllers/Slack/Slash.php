@@ -334,8 +334,11 @@ class Slash extends Controller
         $codes = collect($lastTenCodes)->unique()
             ->take(5)
             ->map(function ($code) {
-                $title = Redis::get('Slack:FNCreativeCodesTitles:'. $code);
-                $description = Redis::get('Slack:FNCreativeCodesDescriptions:'. $code);
+                $titleRaw = html_entity_decode(Redis::get('Slack:FNCreativeCodesTitles:'. $code));
+                $descriptionRaw = html_entity_decode(Redis::get('Slack:FNCreativeCodesDescriptions:'. $code));
+                
+                $title = preg_replace(['/&#x27;/'], ["'"], $titleRaw);
+                $description = preg_replace(['/&#x27;/'], ["'"], $descriptionRaw);
                 return "`${code}` " . ($title ? "*${title}*" : '') . ($description ? " - ${description}" : '');
             });
 
