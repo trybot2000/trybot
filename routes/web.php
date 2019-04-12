@@ -15,22 +15,21 @@ use Ixudra\Curl\Facades\Curl;
 
 Route::get('/', 'HomeController@index');
 
-Route::get('ff_test', function(){
+Route::get('ff_test', function () {
     $f = new \App\Services\FantasyFootball(true);
     return $f->updateScheduleItems('111799');
     // return $f->getMatchup('439427',1,3);
 
-    return $f->createNflMatchupImage(true,true);
+    return $f->createNflMatchupImage(true, true);
 });
 
-Route::get('mention_test', function(){
+Route::get('mention_test', function () {
     $f = new \App\Http\Controllers\Slack\Slack;
 
     $m = new \App\Http\Controllers\Slack\Helpers\Message;
     $m->setText('Hi <@U0662EN06|hiderr>');
 
-    $f->postMessage($m,"G1LKKBAQN");
-
+    $f->postMessage($m, 'G1LKKBAQN');
 });
 
 
@@ -55,11 +54,10 @@ Route::get('/hfkwbzowbvfjhdhjfuhrb7364828', function () {
 
 Route::namespace('Admin')->group(function () {
     // Controllers Within The "App\Http\Controllers\Admin" Namespace
-    
 });
 
 Route::get('/test', function (\Illuminate\Http\Request $request) {
-    return ":)";
+    return ':)';
 });
 
 Route::get('/lenny', function (\Illuminate\Http\Request $request) {
@@ -68,7 +66,7 @@ Route::get('/lenny', function (\Illuminate\Http\Request $request) {
         $sendReply = Curl::to(urldecode($request->response_url))
             ->withData([
                 'response_type' => 'in_channel',
-                'text'          => " ",
+                'text'          => ' ',
             ])
             ->asJson()
             ->returnResponseObject()
@@ -224,10 +222,10 @@ Route::group(['prefix' => 'api'], function () {
             Route::any('/twitch', 'Slack\Slash@twitch');
             Route::any('/tz', 'Slack\Slash@tz');
             Route::any('/jizzme', 'Slack\Slash@jizzMe');
+            Route::any('/codes', 'Slack\Slash@codes');
 
             Route::group(['prefix' => 'fantasy'], function () {
-              Route::any('/{command}', 'Slack\FantasyBot@command');
-              
+                Route::any('/{command}', 'Slack\FantasyBot@command');
             });
         });
     });
@@ -245,7 +243,7 @@ Route::group(['prefix' => 'api'], function () {
             // Check the token
             if (!isset($request->token) || $request->token != env('SLACK_APP_TRYBOT_VERIFICATION_TOKEN', null)) {
                 \Log::info("Token mismatch in /discord handler. Check that the token in .env matches the Verification Token found in the Slack App's Basic Information section.");
-                abort(401, "Token mismatch");
+                abort(401, 'Token mismatch');
             }
 
             // First, let's get a name generated
@@ -255,31 +253,31 @@ Route::group(['prefix' => 'api'], function () {
             $numWords  = 3;
             $nameWords = [];
 
-            $guildId = "143966277327781889";
+            $guildId = '143966277327781889';
 
             for ($i = 0; $i < $numWords; $i++) {
                 $nameWords[] = array_pop($words);
             }
 
             // Build the new channel name
-            $name = implode("-", $nameWords);
+            $name = implode('-', $nameWords);
 
             // Create the voice channel
             $responseChannel = Curl::to("https://discordapp.com/api/guilds/{$guildId}/channels")
-                ->withHeaders(array('Authorization: Bot Mjk5MzUyNTk2NjUxNTczMjQ4.C8cpjw.f8cHp4sgcmcoWrkj3-L7v-PhnjY'))
-                ->withData(array('name' => $name, 'type' => 'voice'))
+                ->withHeaders(['Authorization: Bot Mjk5MzUyNTk2NjUxNTczMjQ4.C8cpjw.f8cHp4sgcmcoWrkj3-L7v-PhnjY'])
+                ->withData(['name' => $name, 'type' => 'voice'])
                 ->asJson()
                 ->returnResponseObject()
                 ->post();
 
             if (isset($responseChannel->error)) {
                 // Something went wrong with the request
-                return array(
-                    "status"  => "fail",
-                    "code"    => $responseChannel->status,
+                return [
+                    'status'  => 'fail',
+                    'code'    => $responseChannel->status,
                     'message' => $responseChannel->error,
                     'data'    => $responseChannel->content,
-                );
+                ];
             }
 
             // The channel was created, so grab the new ID and let's get an invite token
@@ -287,26 +285,26 @@ Route::group(['prefix' => 'api'], function () {
             $channelId   = $channelInfo->id;
 
             $responseInvite = Curl::to("https://discordapp.com/api/channels/{$channelId}/invites")
-                ->withHeaders(array('Authorization: Bot Mjk5MzUyNTk2NjUxNTczMjQ4.C8cpjw.f8cHp4sgcmcoWrkj3-L7v-PhnjY'))
-                ->withData(array('max_age' => 0))
+                ->withHeaders(['Authorization: Bot Mjk5MzUyNTk2NjUxNTczMjQ4.C8cpjw.f8cHp4sgcmcoWrkj3-L7v-PhnjY'])
+                ->withData(['max_age' => 0])
                 ->asJson()
                 ->returnResponseObject()
                 ->post();
 
             if (isset($responseInvite->error)) {
                 // Something went wrong with the request
-                return array(
-                    "status"  => "fail",
-                    "code"    => $responseInvite->status,
+                return [
+                    'status'  => 'fail',
+                    'code'    => $responseInvite->status,
                     'message' => $responseInvite->error,
                     'data'    => $responseInvite->content,
-                );
+                ];
             }
 
             $invite = $responseInvite->content;
 
             // Get the channel code and return info about what we've done
-            $inviteUrl              = "https://discord.gg/" . $invite->code;
+            $inviteUrl              = 'https://discord.gg/' . $invite->code;
             $responseString         = "I created a voice channel for you! It's called {$name} and you can join using this URL: {$inviteUrl}";
             $responseStringMarkdown = "I created a voice channel for you! It's called *{$name}* and you can join using this URL: {$inviteUrl}";
             if (isset($request->simple_return)) {
@@ -323,14 +321,12 @@ Route::group(['prefix' => 'api'], function () {
                     ->returnResponseObject()
                     ->post();
             } else {
-
                 return JsonResponse::success([
                     'invite_code'  => $invite->code,
                     'invite_url'   => 'https://discord.gg/' . $invite->code,
                     'channel_name' => $invite->channel->name,
                 ]);
             }
-
         });
     });
 });
@@ -341,5 +337,3 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('auth/slack', 'Auth\LoginController@redirectToProvider');
 Route::get('auth/slack/callback', 'Auth\LoginController@handleProviderCallback');
-
-
