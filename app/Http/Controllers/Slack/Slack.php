@@ -17,8 +17,8 @@ class Slack extends Controller
 
     public $botMentionTriggers = ['spaceybot', 'spacey bot', 'spacybot', 'spacy bot', 'trybot', 'trybot2000', 'try bot[^h]*?', 'trubot', 'tribot', 'tryboy', 'tri bot', 'hal9000', 'hal 9000', 'swedebot', 'swedebot9000', 'swede bot', 'spambot', 'wikibot', 'wiki bot', 'tryfuck'];
 
-    public $casualChannelId  = "C0662FP5G";
-    public $testingChannelId = "G1LKKBAQN";
+    public $casualChannelId  = 'C0662FP5G';
+    public $testingChannelId = 'G1LKKBAQN';
 
     public $channels = [
     'casual'    => 'C0662FP5G',
@@ -36,24 +36,24 @@ class Slack extends Controller
         Log::info($request->all());
         if (isset($request->event)) {
             // Get the type and log it
-            \Log::info("Event type: " . $request->event['type']);
+            \Log::info('Event type: ' . $request->event['type']);
             $this->logEventType($request->event);
 
             if (isset($request->event['type'])) {
                 if ($this->sentByABot($request->event) === false) {
                     // Sent by a human user
                     switch ($request->event['type']) {
-                    case 'message':
-                        $this->processMessage($request);
-                        break;
+                        case 'message':
+                            $this->processMessage($request);
+                            break;
 
-                    case 'url_verification':
-                        return $request->event['challenge'];
+                        case 'url_verification':
+                            return $request->event['challenge'];
                             // TODO: What other types of events might this receive??
                             // Check the different subtypes (if that key exists)
-                    default:
-                        // code...
-                        break;
+                        default:
+                            // code...
+                            break;
                     }
                 } elseif ($request->event['channel'] == $this->channels['tweet-routing']) {
                     // This is a tweet link sent to a private channel and it needs routing
@@ -74,8 +74,8 @@ class Slack extends Controller
     public function getEventTypes()
     {
         $events = collect([]);
-        $events->put('types', collect(Redis::zRange('Slack:EventLog:Types', 0, -1, "WITHSCORES")));
-        $events->put('subtypes', collect(Redis::zRange('Slack:EventLog:Subtypes', 0, -1, "WITHSCORES")));
+        $events->put('types', collect(Redis::zRange('Slack:EventLog:Types', 0, -1, 'WITHSCORES')));
+        $events->put('subtypes', collect(Redis::zRange('Slack:EventLog:Subtypes', 0, -1, 'WITHSCORES')));
         return response()->collectionToHtmlTable($events);
     }
 
@@ -118,6 +118,14 @@ class Slack extends Controller
             $message->unfurlEverything();
             $message->setText("https://www.epicgames.com/fn/$code");
             \Log::info('Posting to channel');
+            
+            // Log the code in redis (used in the /codes command)
+            Redis::lpush('Slack:FNCreativeCodesList', $code);
+            
+            $pageInfo = $this->getPageTitleAndDescription("https://www.epicgames.com/fn/$code");
+            Redis::set('Slack:FNCreativeCodesTitles:'. $code, $pageInfo['title']);
+            Redis::set('Slack:FNCreativeCodesDescriptions:'. $code, $pageInfo['description']);
+
             if (isset($event['ts'])) {
                 if (Redis::get('Slack:FNCreativeCodeReplyLog:' . $event['ts'])) {
                     \Log::info('Message already processed, stopping check for creative code');
@@ -132,22 +140,44 @@ class Slack extends Controller
         }
     }
 
+    public function getPageTitleAndDescription($url)
+    {
+        $data = [
+            'title' => null,
+            'description' => null,
+        ];
+        \Log::info('Getting url: ' . $url);
+        $html = Curl::to($url)->get();
+
+        $patternTitle = '/"og:title"\s*content="(.*?)"\s*\/>/i';
+        $patternDescriptioon = '/"og:description"\s*content="(.*?)"\s*\/>/i';
+        \Log::info(substr($html, 0, 2000));
+        if (preg_match($patternTitle, $html, $matchesTitle)) {
+            $data['title'] = $matchesTitle[1];
+        }
+        if (preg_match($patternDescriptioon, $html, $matchesDescription)) {
+            $data['description'] = $matchesDescription[1];
+        }
+
+        return $data;
+    }
+
     public function isSubreddit($text, $channel, $event = null)
     {
         // Check to make sure we haven't checked this message already, to prevent duplicate responses
-        $pattern = "/(?<!reddit\.com|reddittryhard\.com)(?:(?:^|\/| )r\/){1}([\w]+)/i";
+        $pattern = '/(?<!reddit\.com|reddittryhard\.com)(?:(?:^|\/| )r\/){1}([\w]+)/i';
         if (preg_match($pattern, $text, $matches)) {
             $subName = $matches[1];
             \Log::info("Searching for subreddit $subName");
             // Search reddit for the sub, to make sure it's real and see if it's marked NSFW
-            $redditSearchResult = json_decode(file_get_contents("http://www.reddit.com/subreddits/search.json?sort=relevance&q=" . $subName), true);
+            $redditSearchResult = json_decode(file_get_contents('http://www.reddit.com/subreddits/search.json?sort=relevance&q=' . $subName), true);
 
             $topResult = false;
             $response  = null;
 
             foreach ($redditSearchResult['data']['children'] as $k => $v) {
                 \Log::info($v['data']['display_name']);
-                if ((trim(strtolower($v['data']['display_name'])) == trim(strtolower($subName))) && ($v['data']['subreddit_type'] === "public")) {
+                if ((trim(strtolower($v['data']['display_name'])) == trim(strtolower($subName))) && ($v['data']['subreddit_type'] === 'public')) {
                     $topResult = $v['data'];
                     break;
                 }
@@ -159,19 +189,18 @@ class Slack extends Controller
                     // It's a NSFW subreddit, so mark accordingly
                     $response = "Here's a link, but it's NSFW! Open carefully! reddit.com/r/" . $subName;
                 } else {
-                    $response = "Link for the lazy: reddit.com/r/" . $subName;
+                    $response = 'Link for the lazy: reddit.com/r/' . $subName;
                 }
             }
             if ($response) {
                 $message = new Message();
                 $message->messageVisibleToChannel();
                 $message->setText($response);
-                \Log::info("Posting to channel");
+                \Log::info('Posting to channel');
                 if (isset($event['ts'])) {
                     if (Redis::get('Slack:SubredditReplyLog:' . $event['ts'])) {
-                        \Log::info("Message already processed, stopping check for subreddit");
+                        \Log::info('Message already processed, stopping check for subreddit');
                     } else {
-
                         $r = $this->postMessage($message, $channel);
 
                         // Log this response to redis, to prevent duplicate messages being triggered because Slack is sending double notifications to the event endpoint
@@ -195,9 +224,9 @@ class Slack extends Controller
 
     public function postMessage(Message $message, $channel, $sendAs = 'trybot')
     {
-        $baseUrl = "https://slack.com/api/chat.postMessage?";
+        $baseUrl = 'https://slack.com/api/chat.postMessage?';
         $token   = config("services.slack.users.$sendAs");
-        if (!$token) {
+        if (! $token) {
             \Log::error('No Slack legacy token found in configs');
         }
 
@@ -218,9 +247,9 @@ class Slack extends Controller
     public function updateMessage($messageTs, Message $message, $channel)
     {
         \Log::info("Updating message $messageTs in channel $channel");
-        $baseUrl = "https://slack.com/api/chat.update?";
+        $baseUrl = 'https://slack.com/api/chat.update?';
         $token   = config('services.slack.users.trybot');
-        if (!$token) {
+        if (! $token) {
             \Log::error('No Slack legacy token found in configs');
         }
 
@@ -240,20 +269,19 @@ class Slack extends Controller
 
     public function getUser($userId)
     {
-
     }
 
     public function getEmojiList()
     {
-        \Log::info("Getting emoji list");
+        \Log::info('Getting emoji list');
         $tStart = microtime(true);
 
         $redis = new Redis();
         $token = config('services.slack.legacy_token');
-        if (!$token) {
+        if (! $token) {
             \Log::error('No Slack legacy token found in configs');
         }
-        $url = "https://slack.com/api/emoji.list?token=" . $token;
+        $url = 'https://slack.com/api/emoji.list?token=' . $token;
         \Log::info($url);
 
         $emojiListData = json_decode(file_get_contents($url), true);
@@ -273,11 +301,11 @@ class Slack extends Controller
 
         // Loop over existing emoji and mark any that no longer exist as inactive
         foreach ($currentEmoji as $emoji) {
-            if (!in_array($emoji->getName(), array_keys($emojiList))) {
+            if (! in_array($emoji->getName(), array_keys($emojiList))) {
                 $emoji->setInactive();
                 $data['deleted'] += 1;
             } else {
-                if (!$emoji->isActive()) {
+                if (! $emoji->isActive()) {
                     // Existed before, now re-activated (instead of being added)
                     $data['added'] += 1;
                 }
@@ -295,7 +323,7 @@ class Slack extends Controller
             $isAlias  = false;
 
             $data['total'] += 1;
-            if (!$newEmoji->exists) {
+            if (! $newEmoji->exists) {
                 $data['added'] += 1;
             }
 
@@ -309,69 +337,62 @@ class Slack extends Controller
             $newEmoji->setActive();
             $newEmoji->save();
 
-            if (!$isAlias) {
+            if (! $isAlias) {
                 // Download and save the image
                 $data['emoji'] += 1;
 
                 $pathInfo = pathinfo($v);
                 $filename = public_path() . '/img/emoji/' . $k . '_' . $pathInfo['basename'];
-                if (!file_exists($filename)) {
+                if (! file_exists($filename)) {
                     $img = file_get_contents($v);
                     file_put_contents($filename, $img);
                     $data['new_files'] += 1;
                 }
             }
-
         }
         $tComplete = round(microtime(true) - $tStart, 2);
-        \Log::info("Finished processing emoji list");
+        \Log::info('Finished processing emoji list');
         \Log::info("Took $tComplete seconds");
         \Log::info($data);
         return JsonResponse::success($data);
-
     }
 
     public function routeTweet($tweetURL)
     {
         // Make sure this hasn't already been processed
-        \Log::info("routing tweet: " . $tweetURL);
+        \Log::info('routing tweet: ' . $tweetURL);
 
-        if(Redis::get('Slack:RouteTweet:' . md5($tweetURL))) {
+        if (Redis::get('Slack:RouteTweet:' . md5($tweetURL))) {
             // Already processed, so let's bail
-            \Log::info("This tweet was already routed: " . $tweetURL);
+            \Log::info('This tweet was already routed: ' . $tweetURL);
             return;
         }
 
         // Depending on the account that's being retweeted, route to a specific group
         // Otherwise, send to #casual
         $patterns = [
-        'fortnite' => "/https?:\/\/(?:www)?twitter.com\/(FortniteGame|FortniteBR|ninja|drlupoontwitch|TSM_Myth|FortniteDaily)/i",
-        'overwatch' => "/https?:\/\/(?:www)?twitter.com\/(PlayOverwatch)/i",
-        'callofduty' => "/https?:\/\/(?:www)?twitter.com\/(CharlieINTEL|CallofDuty|codintel8880|Treyarch|SHGames|MichaelCondrey)/i",
-        'destiny' => "/https?:\/\/(?:www)?twitter.com\/(theDestinyBlog|BungieHelp|DestinyTheGame|Bungie)/i",
-        'apex' => "/https?:\/\/(?:www)?twitter.com\/(Respawn|PlayApex)/i",
+        'fortnite' => '/https?:\/\/(?:www)?twitter.com\/(FortniteGame|FortniteBR|ninja|drlupoontwitch|TSM_Myth|FortniteDaily)/i',
+        'overwatch' => '/https?:\/\/(?:www)?twitter.com\/(PlayOverwatch)/i',
+        'callofduty' => '/https?:\/\/(?:www)?twitter.com\/(CharlieINTEL|CallofDuty|codintel8880|Treyarch|SHGames|MichaelCondrey)/i',
+        'destiny' => '/https?:\/\/(?:www)?twitter.com\/(theDestinyBlog|BungieHelp|DestinyTheGame|Bungie)/i',
+        'apex' => '/https?:\/\/(?:www)?twitter.com\/(Respawn|PlayApex)/i',
         ];
-        if(preg_match($patterns['fortnite'], $tweetURL)) {
+        if (preg_match($patterns['fortnite'], $tweetURL)) {
             // Fortnite
             $channel = $this->channels['fortnite'];
-        }
-        elseif(preg_match($patterns['overwatch'], $tweetURL)) {
+        } elseif (preg_match($patterns['overwatch'], $tweetURL)) {
             // Overwatch
             $channel = $this->channels['overwatch'];
-        }
-        elseif(preg_match($patterns['callofduty'], $tweetURL)) {
+        } elseif (preg_match($patterns['callofduty'], $tweetURL)) {
             // Overwatch
             $channel = $this->channels['callofduty'];
-        }
-        elseif(preg_match($patterns['destiny'], $tweetURL)) {
+        } elseif (preg_match($patterns['destiny'], $tweetURL)) {
             // Overwatch
             $channel = $this->channels['destiny'];
-        }
-        elseif(preg_match($patterns['apex'], $tweetURL)) {
+        } elseif (preg_match($patterns['apex'], $tweetURL)) {
             // Apex Legends
             $channel = $this->channels['apex'];
-        }
-        else{ 
+        } else {
             // Everything else
             $channel = $this->channels['casual'];
         }
@@ -386,7 +407,5 @@ class Slack extends Controller
 
         // Log this response to redis, to prevent duplicate messages being triggered because Slack is sending double notifications to the event endpoint
         Redis::set('Slack:RouteTweet:' . md5($tweetURL), json_encode([$channel => microtime(true)]));
-
     }
-
 }
