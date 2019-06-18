@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "721032e1fcde008dd5e0c05c21af745e",
+    "content-hash": "16e34035f68a19c6cf18ba40abe90834",
     "packages": [
         {
             "name": "cloudcreativity/json-api",
@@ -448,16 +448,16 @@
         },
         {
             "name": "iboldurev/api-ai-php",
-            "version": "0.2.5",
+            "version": "0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/iboldurev/dialogflow.git",
-                "reference": "33aae1b4dc06b52255127f1885378a47e0e76025"
+                "reference": "b0aef50e1ccacbe86ca8ff173b5ef9f229d296c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/iboldurev/dialogflow/zipball/33aae1b4dc06b52255127f1885378a47e0e76025",
-                "reference": "33aae1b4dc06b52255127f1885378a47e0e76025",
+                "url": "https://api.github.com/repos/iboldurev/dialogflow/zipball/b0aef50e1ccacbe86ca8ff173b5ef9f229d296c8",
+                "reference": "b0aef50e1ccacbe86ca8ff173b5ef9f229d296c8",
                 "shasum": ""
             },
             "require": {
@@ -467,7 +467,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "ApiAi\\": "src/"
+                    "DialogFlow\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -481,14 +481,15 @@
                     "homepage": "https://github.com/iboldurev"
                 }
             ],
-            "description": "API.ai php sdk",
+            "description": "Dialogflow php sdk",
             "keywords": [
+                "Dialogflow",
+                "Dialogflow sdk",
                 "api.ai",
-                "api.ai sdk",
                 "bot"
             ],
             "abandoned": "iboldurev/dialogflow",
-            "time": "2016-08-20T08:27:17+00:00"
+            "time": "2017-10-27T19:44:35+00:00"
         },
         {
             "name": "intervention/image",
@@ -4254,6 +4255,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {

@@ -8,7 +8,7 @@
         "php": ">=5.6.4",
         "cloudcreativity/laravel-json-api": "^0.7.0",
         "guzzlehttp/guzzle": "^6.3",
-        "iboldurev/api-ai-php": "^0.2.5",
+        "iboldurev/api-ai-php": "^0.3.0",
         "intervention/image": "^2.4",
         "ixudra/curl": "^6.10",
         "laravel/framework": "5.4.*",
