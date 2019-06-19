@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "721032e1fcde008dd5e0c05c21af745e",
@@ -831,16 +831,16 @@
         },
         {
             "name": "laravel/socialite",
-            "version": "v3.1.1",
+            "version": "v3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/socialite.git",
-                "reference": "65f771ff4f266ebae23de1a3f18efd80a1da2f8d"
+                "reference": "79316f36641f1916a50ab14d368acdf1d97e46de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/socialite/zipball/65f771ff4f266ebae23de1a3f18efd80a1da2f8d",
-                "reference": "65f771ff4f266ebae23de1a3f18efd80a1da2f8d",
+                "url": "https://api.github.com/repos/laravel/socialite/zipball/79316f36641f1916a50ab14d368acdf1d97e46de",
+                "reference": "79316f36641f1916a50ab14d368acdf1d97e46de",
                 "shasum": ""
             },
             "require": {
@@ -890,7 +890,7 @@
                 "laravel",
                 "oauth"
             ],
-            "time": "2018-08-16T12:51:21+00:00"
+            "time": "2018-12-21T14:06:32+00:00"
         },
         {
             "name": "laravel/tinker",
@@ -4254,6 +4254,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {
