@@ -23,7 +23,7 @@ class CreateMessagesTable extends Migration {
 			$table->string('group_id', 100)->index('group_id');
 			$table->string('name', 100);
 			$table->string('avatar_url', 254)->nullable();
-			$table->text('text', 65535)->nullable()->index('text');
+			$table->text('text')->nullable();
 			$table->string('system', 100);
 			$table->string('mentions', 254)->nullable();
 			$table->integer('numMentions')->unsigned()->nullable();

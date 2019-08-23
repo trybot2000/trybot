@@ -19,7 +19,7 @@ class CreateMentionsTable extends Migration {
 			$table->string('varUserId', 256);
 			$table->string('varUserName', 254);
 			$table->string('varDateTime', 254);
-			$table->text('varText', 65535)->index('varText');
+			$table->text('varText', 15000);
 			$table->string('varGroupId', 254);
 			$table->string('mentionType', 254)->nullable();
 		});

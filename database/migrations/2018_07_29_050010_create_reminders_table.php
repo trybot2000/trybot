@@ -16,7 +16,7 @@ class CreateRemindersTable extends Migration {
 		{
 			$table->integer('primary', true);
 			$table->timestamp('timestamp')->default(DB::raw('CURRENT_TIMESTAMP'));
-			$table->dateTime('remindAt')->default('0000-00-00 00:00:00');
+			$table->dateTime('remindAt')->nullable();
 			$table->integer('userId');
 			$table->string('username');
 			$table->enum('service', array('groupme','reddit'));

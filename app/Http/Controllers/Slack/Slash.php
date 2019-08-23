@@ -30,7 +30,7 @@ class Slash extends Controller
         $user = User::where('slack_user_id', '=', $payload['user_id'])->first();
         \Log::info(json_encode($user));
 
-        if (count($user) == 0) {
+        if (! $user) {
             // Create a new user
             \Log::info('Creating new user');
             $user = User::create(
@@ -145,15 +145,17 @@ class Slash extends Controller
             if (count($twitch) == 0) {
                 // No Twitch usernames associated yet
                 // Check that the username is correct in Twitch
-                $userId = $twitchController->getUserIdFromUserName($username);
+                $twitchUserId = $twitchController->getUserIdFromUserName($username);
 
                 Twitch::create(
                     [
                     'user_id'         => $user->getId(),
                     'twitch_username' => $username,
+                    'twitch_user_id' => $twitchUserId, 
                     ]
                 );
             }
+            
             $username = Twitch::where('user_id', '=', $user->getId())->pluck('twitch_username')->first();
             return "Alright, I'll watch for you on Twitch as *{$username}*";
         }

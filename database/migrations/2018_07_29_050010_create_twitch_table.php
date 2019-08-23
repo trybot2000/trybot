@@ -12,7 +12,7 @@ class CreateTwitchTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('twitch', function(Blueprint $table)
+		Schema::create('flaversham.twitch', function(Blueprint $table)
 		{
 			$table->integer('user_id')->unsigned()->nullable();
 			$table->string('twitch_username')->nullable();
@@ -31,7 +31,7 @@ class CreateTwitchTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('twitch');
+		Schema::drop('flaversham.twitch');
 	}
 
 }

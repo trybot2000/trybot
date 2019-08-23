@@ -12,7 +12,7 @@ class CreateSettingsTable extends Migration {
 	 */
 	public function up()
 	{
-		Schema::create('settings', function(Blueprint $table)
+		Schema::create('flaversham.settings', function(Blueprint $table)
 		{
 			$table->string('key', 50);
 			$table->integer('value')->unsigned()->nullable();
@@ -27,7 +27,7 @@ class CreateSettingsTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('settings');
+		Schema::drop('flaversham.settings');
 	}
 
 }

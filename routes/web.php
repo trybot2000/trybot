@@ -337,3 +337,4 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('auth/slack', 'Auth\LoginController@redirectToProvider');
 Route::get('auth/slack/callback', 'Auth\LoginController@handleProviderCallback');
+Route::get('auth/twitch/callback', 'Auth\TwitchOauthController@handleCallback');
