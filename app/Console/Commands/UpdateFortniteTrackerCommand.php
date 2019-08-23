@@ -50,6 +50,7 @@ class UpdateFortniteTrackerCommand extends Command
       'originalhavoc95' => ['psn','pc'], 
       'mostowy' => ['psn','pc'], 
       'probe_07' => ['psn','pc'], 
+      '210 kidddd' => ['psn','pc'],
     ];
 
     foreach($users as $user => $platforms){
