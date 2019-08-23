@@ -1,0 +1,20 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Basic build and test
+      run: |
+        cp .env.example .env
+        composer install
+        php artisan key:generate
+        ./vendor/phpunit/phpunit/phpunit
