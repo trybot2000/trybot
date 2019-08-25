@@ -60,15 +60,15 @@ class TwitchController extends ClassHelper
     public function getGameForGameId($gameId, $timeout = 20)
     {
         $url = $this->apiBaseUrl . '/games?id=' . $gameId;
-
+\Log::info('url', [$url]);
         $game = Curl::to($url)
             ->withTimeout($timeout)
             ->withHeader('Client-ID: ' . $this->clientId)
             ->returnResponseObject()
             ->asJson()
             ->get();
-
-        return collect($game->content->data)->first()->name;
+        \Log::info('game', (array)$game);
+        return collect($game->content->data)->first()->name ?? null;
     }
 
     /**
