@@ -264,7 +264,7 @@ Route::group(['prefix' => 'api'], function () {
 
             // Create the voice channel
             $responseChannel = Curl::to("https://discordapp.com/api/guilds/{$guildId}/channels")
-                ->withHeaders(['Authorization: Bot Mjk5MzUyNTk2NjUxNTczMjQ4.C8cpjw.f8cHp4sgcmcoWrkj3-L7v-PhnjY'])
+                ->withHeaders(['Authorization: Bot ' . env('DISCORD_TRYBOT_TOKEN')])
                 ->withData(['name' => $name, 'type' => 'voice'])
                 ->asJson()
                 ->returnResponseObject()
@@ -285,7 +285,7 @@ Route::group(['prefix' => 'api'], function () {
             $channelId   = $channelInfo->id;
 
             $responseInvite = Curl::to("https://discordapp.com/api/channels/{$channelId}/invites")
-                ->withHeaders(['Authorization: Bot Mjk5MzUyNTk2NjUxNTczMjQ4.C8cpjw.f8cHp4sgcmcoWrkj3-L7v-PhnjY'])
+                ->withHeaders(['Authorization: Bot ' . env('DISCORD_TRYBOT_TOKEN')])
                 ->withData(['max_age' => 0])
                 ->asJson()
                 ->returnResponseObject()
