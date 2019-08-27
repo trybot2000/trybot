@@ -283,7 +283,7 @@ class TwitchController extends ClassHelper
                     }
                 }
 
-                $imageUrl = preg_replace('/\{width\}x\{height\}/i','640x360',$v->thumbnail_url);
+                $imageUrl = preg_replace('/\{width\}x\{height\}/i','640x360',$v->thumbnail_url) . '?t=' . time();
                 
                 $a = new Attachment();
                 $a->setUrl('https://twitch.tv/'.$v->user_name, $v->title);
